@@ -39,8 +39,8 @@ function addMemo($link)
   )
   EOT;
 
-    $result = mysqli_query($link, $sql);
-    if ($result) {
+    $results = mysqli_query($link, $sql);
+    if ($results) {
       echo 'データを追加しました' . PHP_EOL;
     } else {
       echo 'Error: データの追加に失敗しました' . PHP_EOL;
@@ -52,19 +52,23 @@ function addMemo($link)
 
 }
 
-// メモをDBから情報を引っ張ってきて、表示する関数。今のところうまくいっていない。
-function listMemo($memoDate)
+// メモをDBから情報を引っ張ってきて、表示する関数。
+function listMemo($link)
 {
   echo 'メモを表示します' . PHP_EOL . PHP_EOL;
 
-  foreach($memoDate as $memoReview) {
-    echo 'タイトル:' . $memoReview['title'] . PHP_EOL;
-    echo '日付:' . $memoReview['date'] . PHP_EOL;
-    echo '内容:' . $memoReview['memo'] . PHP_EOL . PHP_EOL;
+  $sql = 'SELECT title, date, memo FROM memo_app';
+  $results = mysqli_query($link, $sql);
+
+  while ($memoDate = mysqli_fetch_assoc($results)) {
+    echo 'タイトル:' . $memoDate['title'] . PHP_EOL;
+    echo '日付:' . $memoDate['date'] . PHP_EOL;
+    echo '内容:' . $memoDate['memo'] . PHP_EOL;
   }
+
+  mysqli_free_result($results);
 }
 
-$memoDate = [];
 $link = dbConnect();
 
 // メモのメニュー。上記で定義した関数をメニューごとに実行している
@@ -77,9 +81,9 @@ while(true) {
   $num = trim(fgets(STDIN));
 
   if ($num === '1') {
-    $memoDate[] = addMemo($link);
+    addMemo($link);
   } elseif ($num === '2'){
-    listMemo($memoDate);
+    listMemo($link);
   } elseif ($num === '9'){
     mysqli_close($link);
     echo 'データベースとの接続を切断しました' . PHP_EOL;
